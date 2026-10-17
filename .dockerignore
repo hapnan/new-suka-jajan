@@ -1,0 +1,36 @@
+# Git
+.git
+.gitignore
+
+# Docker
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# Environment files
+.env
+
+# Composer & dependencies (installed inside image)
+vendor/
+
+# Testing & docs
+tests/
+phpunit.xml.dist
+docs/
+README.md
+
+# Accidental local session directories in public/
+public/null/
+public/writeable/
+
+# Runtime writable files (keep directory structure and index.html/.htaccess)
+writable/cache/*
+!writable/cache/index.html
+writable/logs/*
+!writable/logs/index.html
+writable/session/*
+!writable/session/index.html
+writable/uploads/*
+!writable/uploads/index.html
+writable/debugbar/*
+!writable/debugbar/index.html

@@ -1,0 +1,82 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sukajajan-app
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8080}:80"
+    environment:
+      CI_ENVIRONMENT: ${CI_ENVIRONMENT:-production}
+      app_baseURL: ${APP_BASE_URL:-http://localhost:8080/}
+      app_indexPage: ""
+      database_default_hostname: db
+      database_default_database: ${DB_DATABASE:-sukajajan}
+      database_default_username: ${DB_USERNAME:-sukajajan}
+      database_default_password: ${DB_PASSWORD:-sukajajan_secret}
+      database_default_DBDriver: MySQLi
+      database_default_port: 3306
+      session_driver: CodeIgniter\Session\Handlers\FileHandler
+      session_savePath: /var/www/html/writable/session
+      MIDTRANS_SERVER_KEY: ${MIDTRANS_SERVER_KEY:-}
+      MIDTRANS_CLIENT_KEY: ${MIDTRANS_CLIENT_KEY:-}
+    volumes:
+      - app_writable:/var/www/html/writable
+      - app_uploads:/var/www/html/public/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - sukajajan-net
+
+  db:
+    image: mysql:8.0
+    container_name: sukajajan-db
+    restart: unless-stopped
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root_secret}
+      MYSQL_DATABASE: ${DB_DATABASE:-sukajajan}
+      MYSQL_USER: ${DB_USERNAME:-sukajajan}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-sukajajan_secret}
+      TZ: Asia/Jakarta
+    ports:
+      - "${DB_PORT:-3306}:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u$$MYSQL_USER -p$$MYSQL_PASSWORD --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 15s
+    networks:
+      - sukajajan-net
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: sukajajan-pma
+    restart: unless-stopped
+    ports:
+      - "${PMA_PORT:-8081}:80"
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      PMA_USER: ${DB_USERNAME:-sukajajan}
+      PMA_PASSWORD: ${DB_PASSWORD:-sukajajan_secret}
+      UPLOAD_LIMIT: 64M
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - sukajajan-net
+
+volumes:
+  db_data:
+  app_writable:
+  app_uploads:
+
+networks:
+  sukajajan-net:
+    driver: bridge
