@@ -29,10 +29,16 @@ class Category extends BaseController
         $model = new CategoryModel();
         $nama = $this->request->getPost('nama');
 
-        $model->insert([
+        // $model->insert([
+        //     'nama' => $nama,
+        //     'slug' => url_title($nama, '-', true),
+        // ]);
+        if (!$model->insert([
             'nama' => $nama,
-            'slug' => url_title($nama, '-', true),
-        ]);
+            'slug' => url_title((string) $nama, '-', true),
+        ])) {
+            return redirect()->back()->with('errors', $model->errors())->withInput();
+        }
 
         return redirect()->to('/admin/categories')->with('success', 'Kategori berhasil ditambahkan.');
     }
@@ -56,10 +62,19 @@ class Category extends BaseController
         $model = new CategoryModel();
         $nama = $this->request->getPost('nama');
 
-        $model->update($id, [
-            'nama' => $nama,
-            'slug' => url_title($nama, '-', true),
-        ]);
+        // $model->update($id, [
+        //     'nama' => $nama,
+        //     'slug' => url_title($nama, '-', true),
+        // ]);
+
+        if (!$model->update([
+            $id => [
+                'nama' => $nama,
+                'slug' => url_title((string) $nama, '-', true),
+            ],
+        ])) {
+            return redirect()->back()->with('errors', $model->errors())->withInput();
+        }
 
         return redirect()->to('/admin/categories')->with('success', 'Kategori berhasil diupdate.');
     }

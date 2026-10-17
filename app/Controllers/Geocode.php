@@ -56,8 +56,8 @@ class Geocode extends BaseController
             }
 
             $cache->save($cacheKey, $data, 3600);
-            dd($data);
-            // return $this->response->setJSON($data);
+            //dd($data);
+            return $this->response->setJSON($data);
 
         } catch (\Throwable $e) {
 

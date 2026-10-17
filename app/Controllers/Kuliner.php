@@ -143,6 +143,7 @@ class Kuliner extends BaseController
             'alamat'      => 'required',
             'category_id' => 'required|integer',
             'deskripsi'   => 'required',
+            'foto_utama'  => 'if_exist|is_image[foto_utama]|mime_in[foto_utama,image/jpg,image/jpeg,image/png,image/webp]|max_size[foto_utama,2048]',
         ];
 
         if (!$this->validate($rules)) {
@@ -219,6 +220,12 @@ class Kuliner extends BaseController
 
         if ($photoModel->countByKuliner($kulinerId) >= 3) {
             return redirect()->back()->with('error', 'Maksimal 3 foto per tempat.');
+        }
+
+        if (!$this->validate([
+            'photo' => 'uploaded[photo]|is_image[photo]|mime_in[photo,image/jpg,image/jpeg,image/png,image/webp]|max_size[photo,2048]',
+        ])) {
+            return redirect()->back()->with('error', 'Format foto tidak valid atau ukuran melebihi 2MB.');
         }
 
         $foto = $this->request->getFile('photo');
