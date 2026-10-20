@@ -67,11 +67,10 @@ class Category extends BaseController
         //     'slug' => url_title($nama, '-', true),
         // ]);
 
-        if (!$model->update([
-            $id => [
-                'nama' => $nama,
-                'slug' => url_title((string) $nama, '-', true),
-            ],
+        if (!$model->update($id, [
+            'id'   => $id,
+            'nama' => $nama,
+            'slug' => url_title((string) $nama, '-', true),
         ])) {
             return redirect()->back()->with('errors', $model->errors())->withInput();
         }

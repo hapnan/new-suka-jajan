@@ -2,7 +2,7 @@ FROM composer:2 AS composer_bin
 
 FROM php:8.5-apache
 
-# Install system dependencies required by CodeIgniter 4 and image manipulation (GD)
+# Install system dependencies required by CodeIgniter 4, image manipulation (GD), and code coverage (PCOV)
 RUN apt-get update && apt-get install -y --no-install-recommends \
         libicu-dev \
         libzip-dev \
@@ -22,9 +22,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         pdo_mysql \
         gd \
         zip \
+    && pecl install pcov \
+    && docker-php-ext-enable pcov \
     && a2enmod rewrite headers \
     && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* /tmp/pear
 
 # Configure PHP runtime settings
 RUN { \
@@ -38,6 +40,8 @@ RUN { \
         echo "opcache.interned_strings_buffer = 8"; \
         echo "opcache.max_accelerated_files = 10000"; \
         echo "opcache.revalidate_freq = 2"; \
+        echo "pcov.enabled = 1"; \
+        echo "pcov.directory = /var/www/html/app"; \
     } > /usr/local/etc/php/conf.d/sukajajan.ini
 
 # Copy Composer binary from official composer image

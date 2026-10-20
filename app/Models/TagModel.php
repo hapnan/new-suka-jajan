@@ -14,6 +14,7 @@ class TagModel extends Model
     protected $allowedFields = ['nama', 'slug'];
 
     protected $validationRules = [
+        'id'   => 'permit_empty|is_natural_no_zero',
         'nama' => 'required|max_length[50]',
         'slug' => 'required|max_length[50]|is_unique[tags.slug,id,{id}]',
     ];

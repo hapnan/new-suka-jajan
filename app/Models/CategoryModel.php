@@ -14,6 +14,7 @@ class CategoryModel extends Model
     protected $allowedFields = ['nama', 'slug'];
 
     protected $validationRules = [
+        'id'   => 'permit_empty|is_natural_no_zero',
         'nama' => 'required|max_length[100]',
         'slug' => 'required|max_length[100]|is_unique[categories.slug,id,{id}]',
     ];

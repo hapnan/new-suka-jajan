@@ -30,12 +30,8 @@ class Kuliner extends BaseController
         $baseUrl = rtrim(base_url(), '/');
 
         foreach ($kuliners as &$k) {
-            $k['foto_url'] = $k['foto_utama']
-                ? $baseUrl . '/uploads/kuliner/' . $k['foto_utama']
-                : null;
-            $k['thumbnail_url'] = $k['foto_utama']
-                ? $baseUrl . '/uploads/thumbnails/' . $k['foto_utama']
-                : null;
+            $k['foto_url'] = $k['foto_utama'] ? $baseUrl . '/uploads/kuliner/' . $k['foto_utama'] : null;
+            $k['thumbnail_url'] = $k['foto_utama'] ? $baseUrl . '/uploads/thumbnails/' . $k['foto_utama'] : null;
 
             $photos = $photoModel->where('kuliner_id', $k['id'])->findAll();
             $k['photos'] = array_map(function ($p) use ($baseUrl) {

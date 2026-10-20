@@ -6,7 +6,7 @@ class Geocode extends BaseController
 {
     public function search()
     {
-        $alamat = trim($this->request->getGet('q'));
+        $alamat = trim((string) $this->request->getGet('q'));
 
         if (empty($alamat)) {
             return $this->response->setJSON([
@@ -69,8 +69,8 @@ class Geocode extends BaseController
 
     public function reverse()
     {
-        $lat = trim($this->request->getGet('lat'));
-        $lon = trim($this->request->getGet('lon'));
+        $lat = trim((string) $this->request->getGet('lat'));
+        $lon = trim((string) $this->request->getGet('lon'));
 
         if (empty($lat) || empty($lon)) {
             return $this->response->setJSON([

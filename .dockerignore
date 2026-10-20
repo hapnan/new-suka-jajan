@@ -15,6 +15,7 @@ vendor/
 
 # Docs & local build artifacts
 build/
+html/
 docs/
 README.md
 

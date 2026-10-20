@@ -31,7 +31,7 @@ class Tag extends BaseController
 
         $model->insert([
             'nama' => $nama,
-            'slug' => url_title($nama, '-', true),
+            'slug' => url_title((string) $nama, '-', true),
         ]);
 
         return redirect()->to('/admin/tags')->with('success', 'Tag berhasil ditambahkan.');
@@ -58,7 +58,7 @@ class Tag extends BaseController
 
         $model->update($id, [
             'nama' => $nama,
-            'slug' => url_title($nama, '-', true),
+            'slug' => url_title((string) $nama, '-', true),
         ]);
 
         return redirect()->to('/admin/tags')->with('success', 'Tag berhasil diupdate.');
