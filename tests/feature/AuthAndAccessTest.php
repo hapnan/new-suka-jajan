@@ -102,6 +102,7 @@ final class AuthAndAccessTest extends CIUnitTestCase
     public function testPublicCatalogSearchDetailAnd404OnNonExistentSlug(): void
     {
         $this->get('/')->assertOK();
+        $this->get('/kuliner')->assertOK(); // Default sort (latest)
         $this->get('/kuliner?category=warung-makan&rating=4&tag=halal&sort=rating')->assertOK();
         $this->get('/kuliner?lat=-6.9850&lng=110.4190&radius=5')->assertOK();
         $this->get('/search?q=Soto')->assertSee('Warung Soto Bangkong');
