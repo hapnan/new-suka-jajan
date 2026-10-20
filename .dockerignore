@@ -13,9 +13,8 @@ docker-compose*.yml
 # Composer & dependencies (installed inside image)
 vendor/
 
-# Testing & docs
-tests/
-phpunit.xml.dist
+# Docs & local build artifacts
+build/
 docs/
 README.md
 

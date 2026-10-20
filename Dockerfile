@@ -1,17 +1,15 @@
 FROM composer:2 AS composer_bin
 
-FROM php:8.2-apache
+FROM php:8.5-apache
 
 # Install system dependencies required by CodeIgniter 4 and image manipulation (GD)
 RUN apt-get update && apt-get install -y --no-install-recommends \
         libicu-dev \
-        libonig-dev \
         libzip-dev \
         libpng-dev \
         libjpeg62-turbo-dev \
         libwebp-dev \
         libfreetype6-dev \
-        libcurl4-openssl-dev \
         unzip \
         git \
     && docker-php-ext-configure gd \
@@ -20,13 +18,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         --with-webp \
     && docker-php-ext-install -j"$(nproc)" \
         intl \
-        mbstring \
         mysqli \
         pdo_mysql \
         gd \
-        curl \
         zip \
-        opcache \
     && a2enmod rewrite headers \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
@@ -53,10 +48,9 @@ COPY docker/apache/000-default.conf /etc/apache2/sites-available/000-default.con
 
 WORKDIR /var/www/html
 
-# Install Composer dependencies first to leverage Docker layer caching
+# Install Composer dependencies (including PHPUnit in require-dev) first to leverage Docker layer caching
 COPY composer.json composer.lock ./
 RUN composer install \
-    --no-dev \
     --prefer-dist \
     --no-interaction \
     --no-progress \
@@ -70,6 +64,8 @@ COPY docker/entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN sed -i 's/\r$//' /usr/local/bin/docker-entrypoint.sh \
     && chmod +x /usr/local/bin/docker-entrypoint.sh \
     && mkdir -p \
+        build/.phpunit.cache \
+        build/logs \
         writable/cache \
         writable/logs \
         writable/session \
@@ -77,8 +73,8 @@ RUN sed -i 's/\r$//' /usr/local/bin/docker-entrypoint.sh \
         writable/debugbar \
         public/uploads/kuliner \
         public/uploads/thumbnails \
-    && chown -R www-data:www-data /var/www/html/writable /var/www/html/public/uploads \
-    && chmod -R 775 /var/www/html/writable /var/www/html/public/uploads
+    && chown -R www-data:www-data /var/www/html/build /var/www/html/writable /var/www/html/public/uploads \
+    && chmod -R 775 /var/www/html/build /var/www/html/writable /var/www/html/public/uploads
 
 EXPOSE 80
 
