@@ -143,10 +143,21 @@ class Kuliner extends BaseController
             'alamat'      => 'required',
             'category_id' => 'required|integer',
             'deskripsi'   => 'required',
-            'foto_utama'  => 'if_exist|is_image[foto_utama]|mime_in[foto_utama,image/jpg,image/jpeg,image/png,image/webp]|max_size[foto_utama,2048]',
         ];
 
-        if (!$this->validate($rules)) {
+        $messages = [];
+        $foto = $this->request->getFile('foto_utama');
+        if ($foto && $foto->getError() !== UPLOAD_ERR_NO_FILE) {
+            $rules['foto_utama'] = 'uploaded[foto_utama]|is_image[foto_utama]|mime_in[foto_utama,image/jpg,image/jpeg,image/png,image/webp]|ext_in[foto_utama,jpg,jpeg,png,webp]|max_size[foto_utama,2048]';
+            $messages['foto_utama'] = [
+                'is_image' => 'File foto utama harus berupa gambar raster yang valid (bukan SVG atau dokumen).',
+                'mime_in'  => 'Format foto utama harus berupa JPG, JPEG, PNG, atau WEBP (format SVG tidak didukung).',
+                'ext_in'   => 'Ekstensi file foto utama harus .jpg, .jpeg, .png, atau .webp.',
+                'max_size' => 'Ukuran foto utama maksimal 2MB.',
+            ];
+        }
+
+        if (!$this->validate($rules, $messages)) {
             return redirect()->back()->with('errors', $this->validator->getErrors())->withInput();
         }
 
@@ -158,21 +169,34 @@ class Kuliner extends BaseController
         }
 
         $fotoUtama = null;
-        $foto = $this->request->getFile('foto_utama');
         if ($foto && $foto->isValid() && !$foto->hasMoved()) {
-            $newName = $foto->getRandomName();
+            $newName    = $foto->getRandomName();
+            $uploadPath = FCPATH . 'uploads/kuliner/' . $newName;
+            $thumbPath  = FCPATH . 'uploads/thumbnails/' . $newName;
             $foto->move(FCPATH . 'uploads/kuliner', $newName);
 
-            $image = \Config\Services::image();
-            $image->withFile(FCPATH . 'uploads/kuliner/' . $newName)
-                  ->resize(800, 600, true, 'width')
-                  ->save(FCPATH . 'uploads/kuliner/' . $newName);
+            try {
+                $image = \Config\Services::image();
+                $image->withFile($uploadPath)
+                      ->resize(800, 600, true, 'width')
+                      ->save($uploadPath);
 
-            $image->withFile(FCPATH . 'uploads/kuliner/' . $newName)
-                  ->resize(300, 200, true, 'width')
-                  ->save(FCPATH . 'uploads/thumbnails/' . $newName);
+                $image->withFile($uploadPath)
+                      ->resize(300, 200, true, 'width')
+                      ->save($thumbPath);
 
-            $fotoUtama = $newName;
+                $fotoUtama = $newName;
+            } catch (\Throwable $e) {
+                if (is_file($uploadPath)) {
+                    @unlink($uploadPath);
+                }
+                if (is_file($thumbPath)) {
+                    @unlink($thumbPath);
+                }
+                return redirect()->back()
+                    ->with('error', 'Gagal memproses gambar. Pastikan file berupa JPG, JPEG, PNG, atau WEBP yang valid.')
+                    ->withInput();
+            }
         }
 
         $kulinerId = $kulinerModel->insert([
@@ -222,26 +246,49 @@ class Kuliner extends BaseController
             return redirect()->back()->with('error', 'Maksimal 3 foto per tempat.');
         }
 
-        if (!$this->validate([
-            'photo' => 'uploaded[photo]|is_image[photo]|mime_in[photo,image/jpg,image/jpeg,image/png,image/webp]|max_size[photo,2048]',
-        ])) {
-            return redirect()->back()->with('error', 'Format foto tidak valid atau ukuran melebihi 2MB.');
+        $rules = [
+            'photo' => 'uploaded[photo]|is_image[photo]|mime_in[photo,image/jpg,image/jpeg,image/png,image/webp]|ext_in[photo,jpg,jpeg,png,webp]|max_size[photo,2048]',
+        ];
+        $messages = [
+            'photo' => [
+                'uploaded' => 'Pilih file foto terlebih dahulu.',
+                'is_image' => 'File yang diupload harus berupa gambar raster yang valid (bukan SVG).',
+                'mime_in'  => 'Format foto harus berupa JPG, JPEG, PNG, atau WEBP (format SVG tidak didukung).',
+                'ext_in'   => 'Ekstensi file foto harus .jpg, .jpeg, .png, atau .webp.',
+                'max_size' => 'Ukuran foto maksimal 2MB.',
+            ],
+        ];
+
+        if (!$this->validate($rules, $messages)) {
+            return redirect()->back()->with('errors', $this->validator->getErrors());
         }
 
         $foto = $this->request->getFile('photo');
         if ($foto && $foto->isValid() && !$foto->hasMoved()) {
-            $newName = $foto->getRandomName();
+            $newName    = $foto->getRandomName();
+            $thumbName  = 'thumb_' . $newName;
+            $uploadPath = FCPATH . 'uploads/kuliner/' . $newName;
+            $thumbPath  = FCPATH . 'uploads/thumbnails/' . $thumbName;
             $foto->move(FCPATH . 'uploads/kuliner', $newName);
 
-            $image = \Config\Services::image();
-            $image->withFile(FCPATH . 'uploads/kuliner/' . $newName)
-                  ->resize(800, 600, true, 'width')
-                  ->save(FCPATH . 'uploads/kuliner/' . $newName);
+            try {
+                $image = \Config\Services::image();
+                $image->withFile($uploadPath)
+                      ->resize(800, 600, true, 'width')
+                      ->save($uploadPath);
 
-            $thumbName = 'thumb_' . $newName;
-            $image->withFile(FCPATH . 'uploads/kuliner/' . $newName)
-                  ->resize(300, 200, true, 'width')
-                  ->save(FCPATH . 'uploads/thumbnails/' . $thumbName);
+                $image->withFile($uploadPath)
+                      ->resize(300, 200, true, 'width')
+                      ->save($thumbPath);
+            } catch (\Throwable $e) {
+                if (is_file($uploadPath)) {
+                    @unlink($uploadPath);
+                }
+                if (is_file($thumbPath)) {
+                    @unlink($thumbPath);
+                }
+                return redirect()->back()->with('error', 'Gagal memproses gambar. Pastikan file berupa JPG, JPEG, PNG, atau WEBP yang valid.');
+            }
 
             $photoModel->insert([
                 'kuliner_id' => $kulinerId,

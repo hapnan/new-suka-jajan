@@ -11,14 +11,14 @@
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label class="form-label">Nama Tempat</label>
-                        <input type="text" name="nama" class="form-control" value="<?= esc($kuliner['nama'] ?? '') ?>" required>
+                        <input type="text" name="nama" class="form-control" value="<?= esc(old('nama', $kuliner['nama'] ?? '')) ?>" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Kategori</label>
                         <select name="category_id" class="form-select" required>
                             <option value="">Pilih Kategori</option>
                             <?php foreach ($categories as $cat): ?>
-                            <option value="<?= $cat['id'] ?>" <?= ($kuliner['category_id'] ?? '') == $cat['id'] ? 'selected' : '' ?>>
+                            <option value="<?= $cat['id'] ?>" <?= old('category_id', $kuliner['category_id'] ?? '') == $cat['id'] ? 'selected' : '' ?>>
                                 <?= esc($cat['nama']) ?>
                             </option>
                             <?php endforeach; ?>
@@ -27,7 +27,7 @@
                     <div class="mb-3">
                         <label class="form-label">Alamat</label>
                         <div class="input-group">
-                            <input type="text" name="alamat" id="alamat" class="form-control" value="<?= esc($kuliner['alamat'] ?? '') ?>" required>
+                            <input type="text" name="alamat" id="alamat" class="form-control" value="<?= esc(old('alamat', $kuliner['alamat'] ?? '')) ?>" required>
                             <button type="button" class="btn btn-warning" onclick="cariKoordinat()">
                                 <i class="bi bi-geo-alt"></i> Cari Koordinat
                             </button>
@@ -37,18 +37,18 @@
                     <div class="row mb-3">
                         <div class="col">
                             <label class="form-label">Latitude</label>
-                            <input type="text" name="latitude" id="latitude" class="form-control" value="<?= esc($kuliner['latitude'] ?? '') ?>">
+                            <input type="text" name="latitude" id="latitude" class="form-control" value="<?= esc(old('latitude', $kuliner['latitude'] ?? '')) ?>">
                         </div>
                         <div class="col">
                             <label class="form-label">Longitude</label>
-                            <input type="text" name="longitude" id="longitude" class="form-control" value="<?= esc($kuliner['longitude'] ?? '') ?>">
+                            <input type="text" name="longitude" id="longitude" class="form-control" value="<?= esc(old('longitude', $kuliner['longitude'] ?? '')) ?>">
                         </div>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label class="form-label">Deskripsi</label>
-                        <textarea name="deskripsi" class="form-control" rows="4"><?= esc($kuliner['deskripsi'] ?? '') ?></textarea>
+                        <textarea name="deskripsi" class="form-control" rows="4"><?= esc(old('deskripsi', $kuliner['deskripsi'] ?? '')) ?></textarea>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Tags</label>
@@ -56,7 +56,7 @@
                             <?php foreach ($tags as $tag): ?>
                             <div class="form-check">
                                 <input type="checkbox" name="tags[]" value="<?= $tag['id'] ?>" class="form-check-input"
-                                       id="tag<?= $tag['id'] ?>" <?= in_array($tag['id'], $selectedTags) ? 'checked' : '' ?>>
+                                       id="tag<?= $tag['id'] ?>" <?= in_array($tag['id'], old('tags', $selectedTags)) ? 'checked' : '' ?>>
                                 <label class="form-check-label" for="tag<?= $tag['id'] ?>"><?= esc($tag['nama']) ?></label>
                             </div>
                             <?php endforeach; ?>
@@ -69,7 +69,8 @@
                             <img src="/uploads/thumbnails/<?= esc($kuliner['foto_utama']) ?>" class="img-thumbnail" style="max-height: 100px;">
                         </div>
                         <?php endif; ?>
-                        <input type="file" name="foto_utama" class="form-control" accept="image/*">
+                        <input type="file" name="foto_utama" class="form-control" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
+                        <small class="text-muted">Format yang didukung: JPG, JPEG, PNG, WEBP (Maks. 2MB).</small>
                     </div>
                 </div>
             </div>

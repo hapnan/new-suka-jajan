@@ -89,10 +89,10 @@
                     <form action="/kuliner/upload-photo/<?= $kuliner['id'] ?>" method="post" enctype="multipart/form-data">
                         <?= csrf_field() ?>
                         <div class="input-group">
-                            <input type="file" name="photo" class="form-control" accept="image/*" required>
+                            <input type="file" name="photo" class="form-control" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" required>
                             <button type="submit" class="btn btn-sj">Upload</button>
                         </div>
-                        <small class="text-muted">Maks 3 foto per tempat. Format: JPG, PNG.</small>
+                        <small class="text-muted">Maks 3 foto per tempat. Format: JPG, JPEG, PNG, WEBP (Maks. 2MB).</small>
                     </form>
                 </div>
             </div>

@@ -64,7 +64,8 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Foto Utama</label>
-                            <input type="file" name="foto_utama" class="form-control" accept="image/*">
+                            <input type="file" name="foto_utama" class="form-control" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
+                            <small class="text-muted">Format yang didukung: JPG, JPEG, PNG, WEBP (Maks. 2MB).</small>
                         </div>
                         <button type="submit" class="btn btn-sj btn-lg">
                             <i class="bi bi-send"></i> Submit Tempat
