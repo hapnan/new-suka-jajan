@@ -44,6 +44,11 @@ final class ModelTest extends CIUnitTestCase
     public function testFindNearbyReturnsApprovedWithinRadiusOrderedByDistance(): void
     {
         $kulinerModel = new KulinerModel();
+
+        $withCategory = $kulinerModel->getWithCategory()->findAll();
+        $this->assertNotEmpty($withCategory);
+        $this->assertArrayHasKey('category_nama', $withCategory[0]);
+
         // Coordinates near Simpang Lima Semarang
         $results = $kulinerModel->findNearby(-6.9850, 110.4190, 2.0)->findAll();
 
